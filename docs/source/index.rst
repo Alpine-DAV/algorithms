@@ -10,6 +10,11 @@ Welcome to ALPINE documentation
    :maxdepth: 2
    :caption: Contents:
 
+   introduction
+   algorithms
+   infrastructure
+   zfp_compression
+   team
 
 Indices and tables
 ==================

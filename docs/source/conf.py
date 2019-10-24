@@ -19,7 +19,7 @@
 
 project = 'ALPINE-algorithms'
 copyright = '2019, Data Science at Scale Team, Los Alamos National Laboratory'
-author = 'Terry Turton, et al'
+author = 'Terry Turton (LANL) and ALPINE team contributors'
 
 
 # -- General configuration ---------------------------------------------------
@@ -30,6 +30,7 @@ author = 'Terry Turton, et al'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.imgmath',
+    'sphinx_rtd_theme',
 ]
 
 master_doc = 'index'

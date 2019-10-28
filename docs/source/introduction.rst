@@ -7,7 +7,7 @@ ALPINE is a data and visualization software project under development as part of
 
 ALPINE capabilities include infrastructure, analysis and visualization algorithms, and compression.  This documentation will focus on ALPINE aglorithms.  Links are provided to access information and documentation about ALPINE infrastructure and zfp compression.
 
-This is a work in progress.  New algorithms and documentation will be added as needed in the future.  
+This is a work in progress.  New algorithms and documentation will be added as needed in the future. ECP science applications interested in using ALPINE capabilities can reach out to us via ECP Confluence.   
 
 All of our software is open source and available at the links noted within the documentation.
 

@@ -22,13 +22,14 @@ To perform in situ extraction, several parameters can be specified to the Lagran
 
 Use Case Examples
 ^^^^^^^^^^^^^^^^^
+To demonstrate the use of Lagrangian analysis, we use the Cloverleaf3D proxy application that is available as an example integration with the Ascent library.
 
 Performance
 ^^^^^^^^^^^
 
 Developers
 ^^^^^^^^^^
-
+Sudhanshu Sane
 
 .. toctree::
    :maxdepth: 1

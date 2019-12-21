@@ -16,6 +16,9 @@ The stored basis flow information can be interpolated post hoc to perform explor
 
 Getting Started
 ^^^^^^^^^^^^^^^
+Lagrangian analysis functionality is accessible via Ascent. In situ extraction of time-dependent vector field data is performed using a VTK-m filter and particle advection VTK-m worklet. The Ascent library is light-weight infrastructure that is directly integrated with the simulation code. Depending on the particular use case, Lagrangian analysis can also be directly performed using the VTK-m filter.
+
+To perform in situ extraction, several parameters can be specified to the Lagrangian analysis filter. These include: step size, write frequency (interval length), and the custom seeding resolution in x, y, z direction.
 
 Use Case Examples
 ^^^^^^^^^^^^^^^^^

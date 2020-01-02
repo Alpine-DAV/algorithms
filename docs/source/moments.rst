@@ -1,7 +1,7 @@
 .. _label_moments:
 
-Moments Invariant Pattern Detection
-===================================
+Rotation Invariant Pattern Detection
+====================================
 
 Overview
 ^^^^^^^^

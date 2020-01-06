@@ -16,18 +16,18 @@ The stored basis flow information can be interpolated post hoc to perform explor
 
 Getting Started
 ^^^^^^^^^^^^^^^
-Lagrangian analysis functionality is accessible via Ascent. In situ extraction of time-dependent vector field data is performed using a VTK-m filter and particle advection VTK-m worklet. The Ascent library is light-weight infrastructure that is directly integrated with the simulation code. Depending on the particular use case, Lagrangian analysis can also be directly performed using the VTK-m filter.
+Lagrangian analysis functionality is accessible via Ascent. In situ extraction of time-dependent vector field data is implemented using VTK-m, VTK-h filters and a VTK-m particle advection worklet. The Ascent library is light-weight infrastructure that is directly integrated with the simulation code. Depending on the particular use case (for example, operating on a single node), Lagrangian analysis can also be directly performed using the VTK-m filter.
 
 To perform in situ extraction, several parameters can be specified to the Lagrangian analysis filter. These include: 
 
-#. Vector field name
-#. Step size
-#. Write frequency (interval length)
-#. Custom seeding resolution 
+#. Vector field name - the name of the vector field whose Lagrangian representation is to be calculated
+#. Step size - the unit of time a particle advances between each cycle
+#. Write frequency (interval length) - the number of cycles between writing basis flow information to disk
+#. Custom seeding resolution - 0 or 1. The default value 0 results in a 1:1 seed resolution, i.e., number of seeds to grid points. The value of 1 allows the user to specify a custom seed resolution. This is achieved by specifying the number of seeds to grid points along each axis:
 
-   * Divide by factor in X direction
-   * Divide by factor in Y direction
-   * Divide by factor in Z direction
+   * Reduction factor in X direction
+   * Reduction factor in Y direction
+   * Reduction factor in Z direction
    
 These parameters can be specified by manually setting the values using filter object functions or by passing values via an ascent_actions.json file. 
 
@@ -37,9 +37,10 @@ To demonstrate the use of Lagrangian analysis, we use the Cloverleaf3D proxy app
 
 Below is an example ascent_actions.json file that can be used to extract time-dependent vector fields in a Lagrangian representation from the Cloverleaf3D. 
 The pipeline of operations to be performed contains the name of the filter - "lagrangian", followed by the specific parameters required to configure the filter. For the Cloverleaf3D proxy application, a vector field named "velocity" is generated. For other simulation codes, the respective vector field name will need to be used. 
-We can specify the step size used for advection (in this example we use "0.02"). If cust_res is set to 0, then the number of particles used is the same as the number of grid points, i.e., a 1:1 configuration. In our example, we set cust_res to 1, indicating we want to not use the default number of particles. 
-We set x_res, y_res, z_res to 2, i.e., a particle is placed for every other grid point in each direction. Thus, for this custom seed resolution we are using 1:8 particles to grid points. 
+We can specify the step size used for advection (in this example we use "0.02"). If cust_res is set to 0, then the number of particles used is the same as the number of grid points, i.e., a 1:1 configuration. In our example, we set cust_res to 1, indicating we do not want to use the default seed resolution. 
+We set x_res, y_res and z_res to 2, i.e., a particle is placed for every other grid point in each axis direction. Thus, for this custom seed resolution we are using 1:8 particles to grid points. 
 
+::
 
 [
   {
@@ -75,8 +76,48 @@ We set x_res, y_res, z_res to 2, i.e., a particle is placed for every other grid
   }
 ]
 
+Additionally, in the event the user does not want to use an ascent_actions.json file, the code can be directly instrumented. The C++ code snippet below demonstrates the same Lagrangian analysis filter configuration as the instance above.
+
+::
+
+  Ascent ascent;
+  Node ascent_opts;
+  ascent_opts["runtime/type"] = "ascent";
+  ascent.open(ascent_opts);
+  Conduit:Node mesh_data;
+  // Populate mesh_data;
+  conduit::Node pipelines;
+  // pipeline 1
+  pipelines["pl1/f1/type"] = "lagrangian";
+  // filter knobs
+  conduit::Node &lagrangian_params = pipelines["pl1/f1/params"];
+  lagrangian_params["field"] = "velocity";
+  lagrangian_params["step_size"] = 0.02;
+  lagrangian_params["write_frequency"] = 10;
+  lagrangian_params["cust_res"] = 1;
+  lagrangian_params["x_res"] = 2;
+  lagrangian_params["y_res"] = 2;
+  lagrangian_params["z_res"] = 2;
+  conduit::Node actions;
+  // add the pipeline
+  conduit::Node &add_pipelines = actions.append();
+  add_pipelines["action"] = "add_pipelines";
+  add_pipelines["pipelines"] = pipelines;
+  // execute
+  conduit::Node &execute  = actions.append();
+  execute["action"] = "execute";
+  // reset
+  conduit::Node &reset  = actions.append();
+  reset["action"] = "reset";
+  ascent.publish(mesh_data);
+  ascent.execute(actions);
+  ascent.close();
+
+
 Performance
 ^^^^^^^^^^^
+
+To improve overall performance of the Lagrangian analysis the filter particle advection worklet is capable of utilizing hardware accelerators for improved performance. Further, we adopt a communication-free model and eliminate integration of basis flow trajectories across node boundaries to improve scalability.  
 
 Developers
 ^^^^^^^^^^

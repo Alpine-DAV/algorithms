@@ -16,15 +16,21 @@ More details of the approach can be found in this paper:
 
 Getting Started
 ^^^^^^^^^^^^^^^
+The distribution-driven sampling approach is now available through Ascent and is implemented using VTK-m and VTK-h filters. VTK-h is needed for creating a distributed histogram and making it available to all the individual processors where the VTK-m filter is executed. Due to the dependence on data histogram, the name of the filter is "HistSampling". Since the light-weight in situ library Ascent can be connected to simulation code, the sampling algorithm can be directly executed in situ on the supercomputers. 
+
+This easy to use sampling filter expects only one parameter from the users:
+#. sampling_rate ("sampling_rate") - the amount of data to be stored after sampling. If the total band-width is m and the dataset size for the current time step is n, then this value can be set to n/m or less.
+This parameter can be specified by assigning value via an ascent_actions.json file. 
 
 Use Case Examples
 ^^^^^^^^^^^^^^^^^
 
 Performance
 ^^^^^^^^^^^
+To improve overall performance of the sampling operation, this filter is capable of utilizing hardware accelerators. Further, creation of distributed histogram is additive across processors that also helps improve scalability.  
 
 Developers
 ^^^^^^^^^^
-
+Ayan Biswas, Matt Larsen, Li-Ta Lo
 .. toctree::
    :maxdepth: 1

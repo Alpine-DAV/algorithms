@@ -32,5 +32,6 @@ To improve overall performance of the sampling operation, this filter is capable
 Developers
 ^^^^^^^^^^
 Ayan Biswas, Matt Larsen, Li-Ta Lo
+
 .. toctree::
    :maxdepth: 1

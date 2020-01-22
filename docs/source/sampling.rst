@@ -23,6 +23,7 @@ This easy to use sampling filter expects only three parameters from the users:
 #. Scalar field name ("field") - the name of the scalar field that is to be sampled.
 #. Rate of sampling ("sample_rate") - the amount of data to be stored after sampling. If the total bandwidth is m and the dataset size for the current time step is n, then this value can be set to n/m or less. The default is 0.1, i.e., 10% of the original data will be stored.
 #. Number of bins for the histogram ("bins") - number of bins for creating the data histogram. The default is 128. 
+
 These parameters can be specified by assigning value via an ascent_actions.json file. 
 
 Use Case Examples

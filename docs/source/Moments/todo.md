@@ -1,9 +1,7 @@
 # ToDo for Rotation Invariance Pattern Detection
 
-- Add bubbles as novel use case; gradient search for scalar field example
-- Take out reconstruction part -- too much detail.
-- Look at Cinema Levia paper examples for other use case examples.
-- Add the trivial test example:
+- Cinema Levia paper examples for other use case examples.
+- Trivial test example workflow available in ParaView GitLab
 
 ```
 - compile vtk

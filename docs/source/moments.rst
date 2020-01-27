@@ -90,24 +90,28 @@ A schematic overview of the use of **vtkSimilarityBalls** with example images is
                               moments. Then, we multiply the coefficients with their
                               corresponding basis function and add them up.
 
-There are three applications for this function.  First, given the moments of the pattern and the grid of the pattern, we can see which parts of the template the algorithm can actually grasp with
-a given order during the pattern detection.  The following figure shows images created using moments up to second order.
+..
+  There are three applications for this function.  First, given the moments of the pattern and the grid of the pattern, we can see which parts of the template the algorithm can actually grasp with a given order during the pattern detection.  The following figure shows images created using moments up to second order.
 
-.. image:: Moments/momentsChartReconstructPattern.jpg
+..
+  .. image:: Moments/momentsChartReconstructPattern.jpg
       :align: center
       :width: 95%
 
-Second, if we put in the normalized moments of the pattern and the grid of the pattern, we can see the standard position. There might be several standard positions due to the ambiguity of the eigenvectors that differ by rotations of 180 degree and possibly a reflection. The algorithm will use the first one. In the previous Figure, the reflection along the x-axis would also be a standard position.
+..
+  Second, if we put in the normalized moments of the pattern and the grid of the pattern, we can see the standard position. There might be several standard positions due to the ambiguity of the eigenvectors that differ by rotations of 180 degree and possibly a reflection. The algorithm will use the first one. In the previous Figure, the reflection along the x-axis would also be a standard position.
 
-Third, if we put in the moments of the field and the original field data, we can see how well the subset of points, on which the moments were computed, actually represents the field. The following Figure depicts an example using a 16 x 16 coarse grid and moments up to second order.
+..
+  Third, if we put in the moments of the field and the original field data, we can see how well the subset of points, on which the moments were computed, actually represents the field. The following Figure depicts an example using a 16 x 16 coarse grid and moments up to second order.
 
-.. image:: Moments/momentsChartReconstructField.jpg
+..
+  .. image:: Moments/momentsChartReconstructField.jpg
       :align: center
       :width: 95%
 
 
-Use Case Example
-^^^^^^^^^^^^^^^^^
+Use Case Example - paraview-vis.py
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The pattern detection algorithm can be demonstrated using ALPINE's `Ascent`_ infrastructure and its built-in example integration, the Cloverleaf3D proxy application (http://uk-mac.github.io/CloverLeaf3D/).
 
@@ -162,6 +166,20 @@ The pattern detection workflow was run in Ascent through ParaView. The images sh
 .. image:: Moments/momentsCloverleaf-LIC-Comparison.png
       :width: 40%
 
+Use Case Example - Bubble-finding
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+One example of using rotational invariant pattern detection is for data reduction in an `MFIX-Exa`_ bubbling bed simulation.  The pattern that is used for the search is a simple density boundary -- particles on one side, no particles on the other (left-hand image).   The middle image shows the original dataset while the right-hand image shows the bubbles found by the rotational invariant pattern detection algorithm saving only 5% of the original data.
+
+.. image:: Moments/bubble-pattern.png
+      :width: 36%
+
+.. image:: Moments/bubble-original-data.png
+      :width: 24%
+
+.. image:: Moments/bubble-5percent-data.png
+      :width: 23%
+
 
 Repository Information
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -171,6 +189,7 @@ The moment invariants pattern detection code is found within the Kitware GitLab:
 VTK: https://gitlab.kitware.com/vtk/vtk (dc2d04cdd3167d0a0aa95bc3efffa13f26c98516)
 
 MomentInvariants: https://gitlab.kitware.com/vtk/MomentInvariants (df81d17f941989d9becdbcf10413e53af7a7ab10)
+Includes unit testing instructions.  
 
 Instructions for In Situ ParaView Vis using Ascent Extract Interface: https://github.com/danlipsa/ascent/tree/moment-invariants/src/examples/paraview-vis
 
@@ -178,6 +197,7 @@ The moment invariant pattern detection algorithm was developed by Roxana Bujack 
 
 
 .. _Ascent : https://alpine-dav.github.io/ascent/
+.. _MFIX-Exa : https://mfix.netl.doe.gov/doc/exa/develop/
 
 
 .. toctree::

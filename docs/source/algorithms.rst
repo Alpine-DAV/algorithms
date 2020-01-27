@@ -37,4 +37,3 @@ The current list of ALPINE algorithms is below.  This documentation is a work in
    topology
    moments
    task_based
-   statistics

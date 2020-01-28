@@ -61,6 +61,8 @@ exclude_patterns = ['build', 'Thumbs.db', '.DS_Store']
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+# Enable numbered figures
+numfig = True
 
 # -- Options for HTML output -------------------------------------------------
 

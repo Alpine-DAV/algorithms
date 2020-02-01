@@ -125,7 +125,7 @@ but ensure that vtk-m is built with MPI support by adding ``--spec="%gcc
 .. code-block:: console
 
   python scripts/uberenv/uberenv.py --prefix uberenv_libs \
-                                    --spec="%gcc ^vtkm+mpi"
+                                    --spec "%GCC ^vtk-m+mpi"
 
 When Ascent is built with MPI support, contour tree-based isosurface selection
 is available through Ascent's ``contour`` filter. Use the ``levels`` parameter

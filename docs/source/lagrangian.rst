@@ -75,7 +75,7 @@ We set x_res, y_res and z_res to 2, i.e., a particle is placed for every other g
   ]
 
 
-Additionally, in the event the user does not want to use an ascent_actions.json file, the code can be directly instrumented. The C++ code snippet below demonstrates the same Lagrangian analysis filter configuration as the instance above.
+Additionally, in the event the user does not want to use an ascent_actions.json file, the code can be directly instrumented. The C++ code snippet below demonstrates the same Lagrangian analysis filter configuration as the instance above. Further, this example utilizes Ascent relay extract functionality to store the calculated basis flow data.
 
 .. code-block:: C++
 
@@ -83,8 +83,14 @@ Additionally, in the event the user does not want to use an ascent_actions.json 
   Node ascent_opts;
   ascent_opts["runtime/type"] = "ascent";
   ascent.open(ascent_opts);
-  Conduit:Node mesh_data;
+  conduit::Node mesh_data;
   // Populate mesh_data;
+  
+  conduit::Node extracts;
+  extracts["e1/type"]  = "relay";
+  extracts["e1/pipeline"]  = "pl1";
+  extracts["e1/params/path"] = output_file_path;
+  
   conduit::Node pipelines;
   // pipeline 1
   pipelines["pl1/f1/type"] = "lagrangian";
@@ -102,6 +108,10 @@ Additionally, in the event the user does not want to use an ascent_actions.json 
   conduit::Node &add_pipelines = actions.append();
   add_pipelines["action"] = "add_pipelines";
   add_pipelines["pipelines"] = pipelines;
+  // add the extracts
+  conduit::Node &add_extracts = actions.append();
+  add_extracts["action"] = "add_extracts";
+  add_extracts["extracts"] = extracts;
   // execute
   conduit::Node &execute  = actions.append();
   execute["action"] = "execute";

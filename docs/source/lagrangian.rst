@@ -55,12 +55,12 @@ We set x_res, y_res and z_res to 2, i.e., a particle is placed for every other g
             "params":
             {
               "field": "velocity",
-              "step_size": "0.02",
-              "write_frequency": "25",
-              "cust_res": "1",
-              "x_res": "2",
-              "y_res": "2",
-              "z_res": "2"
+              "step_size": 0.02,
+              "write_frequency": 25,
+              "cust_res": 1,
+              "x_res": 2,
+              "y_res": 2,
+              "z_res": 2
             }
           }
         }

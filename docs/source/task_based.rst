@@ -10,12 +10,11 @@ Segmentations of the domain derived from merge trees have been shown to efficien
 
 We implemented our feature extraction algorithm using a task based approach where we define the algorithm using an abstract task graphs that can be execute on multiple runtimes (using the BabelFlow library). The computation is composed of four types of tasks: local computation, join, correction and segmentation. The local computation at the leaf nodes (of the task graph) receive the input data and produces two outputs: a local tree and a boundary tree. These are sent to the correction and join tasks, respectively. All but the leaf tasks of the reduction perform the join of two (or more) boundary trees and send the other boundary tree to the next join and an augmented boundary tree to as many correction stages as there are leaves in the subtree of the join. The correction uses the augmented boundary tree and the local tree to update the local tree and sends it to the next correction stage. Once all joins have been passed to a correction, each local tree is passed to a final segmentation.
 
+
 Getting Started
 ^^^^^^^^^^^^^^^
 
-The task based feature segmentation is usable through Ascent when built via Spack/uberenv enabling the variant "+babelflow".
-
-The filter accepts the following set of parameters:
+The task based feature segmentation is usable through Ascent when built via Spack/uberenv enabling the variant "+babelflow". The filter is called "bflow_pmt" and it accepts the following set of parameters:
 
   * task: the name of the algorithm to execute, now only "pmt" is currently supported (default = "pmt")
   * field: name of the input field (scalar and float64)
@@ -26,6 +25,19 @@ The filter accepts the following set of parameters:
 Some optional parameters are:
   * in_ghosts: number of ghost cells used by the input domain decomposition (default = [1,1,1,1,1,1])
   * ugrid_select: if dataset contains multiple uniform grids, select the index of the grid to use for the analysis (default = 0)
+
+**Task-based compositing**
+
+Another feature of BabelFlow is task-based, parallel compositing of images. This feature is available as Ascent extract called "bflow_comp". The extract is designed to be used with a Devil Ray filter called "dray_project_colors_2d". This filter renders images of local data and passes them down the Ascent's pipeline as Blueprint uniform mesh data with two fields. One field, called "color_field", is the pixel data and the other one, called "depth_field", is the depth data. This designs allows us to add future renderers and support other potential compositing patterns. The compositing extract accepts the following set of parameters:
+
+ * pipeline: the name of the pipeline on which to apply this extract
+ * color_field: the name of the field with the pixel data
+ * depth_field: the name of the field with depth data
+ * image_prefix: the prefix for the output image name
+ * compositing: specifies which compositing technique to use, 0 means single reduce tree, 1 means binary swap, and 2 means use the radix-k algorithm 
+ * fanin: defines the reduce factor to use when image fragments are reduced into one image in the end of the Radix-k exchange pattern; for higher process counts it is recommended to use higher fanin such as 4 or 8 to reduce the number of levels in the reduce tree
+ * radices: array of radices for radix-k algorithm
+
 
 Use Case Examples
 ^^^^^^^^^^^^^^^^^
@@ -46,9 +58,8 @@ Here is an actions file which takes as input a scalar field "mag" and perform a 
     pipelines:
       pl2:
         f1:
-          type: "babelflow"
+          type: "bflow_pmt"
           params:
-            task: "pmt"
             field: "mag"
             fanin: 2
             threshold: 0.0025
@@ -60,7 +71,7 @@ Here is an actions file which takes as input a scalar field "mag" and perform a 
         type: "relay"
         pipeline: "pl2"
         params:
-          path: "seg0"
+          path: "seg"
           protocol: "blueprint/mesh/hdf5"
           fields: 
             - "segment"
@@ -76,8 +87,7 @@ The equivaled pipeline in C++:
   a.open(ascent_opt);
 
   Node pipelines;
-  pipelines["pl1/f1/type"] = "babelflow";
-  pipelines["pl1/f1/params/task"] = "pmt";
+  pipelines["pl1/f1/type"] = "bflow_pmt";
   pipelines["pl1/f1/params/field"] = "mag";
   pipelines["pl1/f1/params/fanin"] = 2;
   pipelines["pl1/f1/params/threshold"] = 0.0025;
@@ -104,10 +114,88 @@ The equivaled pipeline in C++:
   a.execute(actions);
   a.close();
 
+**Task-based compositing**
+
+Below is the actions file for the compositing pipeline with Devil Ray renderer and BabelFlow compositing:
+
+.. code-block:: yaml
+
+  -
+    action: "add_pipelines"
+    pipelines:
+      pl1:
+        f1:
+          type: "dray_project_colors_2d"
+          params:
+            field: "density"
+            color_table:
+              name: "cool2warm"
+            camera:
+              azimuth: -30
+              elevation: 35
+  -
+    action: "add_extracts"
+    extracts:
+      e1:
+        type: "bflow_comp"
+        pipeline: pl1
+        params: 
+          color_field: "colors"
+          depth_field: "depth"
+          image_prefix: "comp_img"
+          fanin: 2
+          compositing: 2
+          radices: [2, 4]
+
+The equivaled pipeline in C++:
+
+.. code-block:: C++
+
+  Ascent a;
+  conduit::Node ascent_opt;
+  ascent_opt["mpi_comm"] = MPI_Comm_c2f(MPI_COMM_WORLD);
+  ascent_opt["runtime/type"] = "ascent";
+  a.open(ascent_opt);
+
+  std::vector<int64_t> radices({2, 4});
+
+  Node pipelines;
+  pipelines["pl1/f1/type"] = "dray_project_colors_2d";
+  pipelines["pl1/f1/params/field"] = "density";
+  pipelines["pl1/f1/params/color_table/name"] = "cool2warm";
+  pipelines["pl1/f1/params/camera/azimuth"] = -30;
+  pipelines["pl1/f1/params/camera/elevation"] = 35;
+
+  Node extract;
+  extract["e1/type"] = "bflow_comp";
+  extract["e1/pipeline"] = "pl1";
+  extract["e1/params/color_field"] = "colors";
+  extract["e1/params/depth_field"] = "depth";
+  extract["e1/params/image_prefix"] = "comp_img";
+  extract["e1/params/fanin"] = 2;
+  extract["e1/params/compositing"] = 2;
+  extract["e1/params/radices"].set_int64_vector(radices);
+
+  Node actions;
+  Node &add_extract = actions.append();
+  add_extract["action"] = "add_extracts";
+  add_extract["extracts"] = extract;
+
+  actions.append()["action"] = "execute";
+
+  Node &add_pipelines = actions.append();
+  add_pipelines["action"] = "add_pipelines";
+  add_pipelines["pipelines"] = pipelines;
+
+  a.execute(actions);
+  a.close();
+
+
 Performance
 ^^^^^^^^^^^
 
 Our implementation using a task based abstraction layer (BabelFlow) allows for easy portability of analytics over multiple runtimes (i.e., the current implementation uses MPI). To avoid large global communications and improve overall performance reduction and broadcast communications are defined in the task graph as k-way reduction/broadcast trees (where k in the number of input/output nodes at each level of the tree). 
+
 
 Developers
 ^^^^^^^^^^

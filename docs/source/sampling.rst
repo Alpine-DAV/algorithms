@@ -12,9 +12,9 @@ Features of the data generally span much fewer data points compared to the backg
 
 Here is a brief outline of the two falvors of sampling algorithms available in our filter:
 
-    Value-based Sampling: In this approach, to achieve sampling, first, the histogram of the dataset is created. Histograms, used as a representation of the data distribution, are used for identifying and assigning importance to the individual scalars. The goal is to pick an equal number of samples from each bin. Therefore, in this sampling approach the probabilty of picking low-frequency values is higher than picking high-frequency values. More details of the approach can be found in this paper: “In Situ Data-Driven Adaptive Sampling for Large-scale Simulation Data Summarization”, Ayan Biswas, Soumya Dutta, Jesus Pulido, and James Ahrens, In Situ Infrastructures for Enabling Extreme-scale Analysis and Visualization (ISAV 2018), co-located with Supercomputing 2018.
+#. Value-based Sampling: In this approach, to achieve sampling, first, the histogram of the dataset is created. Histograms, used as a representation of the data distribution, are used for identifying and assigning importance to the individual scalars. The goal is to pick an equal number of samples from each bin. Therefore, in this sampling approach the probabilty of picking low-frequency values is higher than picking high-frequency values. More details of the approach can be found in this paper: “In Situ Data-Driven Adaptive Sampling for Large-scale Simulation Data Summarization”, Ayan Biswas, Soumya Dutta, Jesus Pulido, and James Ahrens, In Situ Infrastructures for Enabling Extreme-scale Analysis and Visualization (ISAV 2018), co-located with Supercomputing 2018.
 
-    Value and Gradient-based Sampling: The pervious approach first decides how many samples to pick from each bin of the scalar value distribution and then selects that many samples at random. Value and Gradient-based sampling is an extension of the pervious approach where gradient magnitude information is used to decide how to select the samples from each scalar value bin. For this, the joint histogram of the scalar values and their gradient maginitudes is first calculated. For each scalar value bin, while selecting the samples more importance is assigned to the samples with high corresponding gradient magnitude. More details of the approach can be found in this paper: “Probabilistic Data-Driven Sampling viaMulti-Criteria Importance Analysis”, Ayan Biswas, Soumya Dutta, Earl Lawrence, John Patchett, Jon C. Calhoun, and James Ahrens, IEEE Transcations of Visualization and Computer Graphics (TVCG), 2020 (doi: 10.1109/TVCG.2020.3006426)
+#. Value and Gradient-based Sampling: The pervious approach first decides how many samples to pick from each bin of the scalar value distribution and then selects that many samples at random. Value and Gradient-based sampling is an extension of the pervious approach where gradient magnitude information is used to decide how to select the samples from each scalar value bin. For this, the joint histogram of the scalar values and their gradient maginitudes is first calculated. For each scalar value bin, while selecting the samples more importance is assigned to the samples with high corresponding gradient magnitude. More details of the approach can be found in this paper: “Probabilistic Data-Driven Sampling viaMulti-Criteria Importance Analysis”, Ayan Biswas, Soumya Dutta, Earl Lawrence, John Patchett, Jon C. Calhoun, and James Ahrens, IEEE Transcations of Visualization and Computer Graphics (TVCG), 2020 (doi: 10.1109/TVCG.2020.3006426)
 
 The sampling method operates by creating a point representation of the selected data points at the in situ processing phase. These data points can then be restored back to its original size/resolution by an inverse operation or these samples can be directly visualized as a preview of the dataset using visualization tools (such as Paraview).
 
@@ -25,9 +25,10 @@ The distribution-driven sampling approach is now available through Ascent and is
 
 This easy to use sampling filter expects only three parameters from the users:
 
-#. Scalar field name ("field") - the name of the scalar field that is to be sampled.
+#. Scalar field name ("field") - the name of the scalar field to be sampled.
 #. Rate of sampling ("sample_rate") - the amount of data to be stored after sampling. If the total bandwidth is m and the dataset size for the current time step is n, then this value can be set to n/m or less. The default is 0.1, i.e., 10% of the original data will be stored.
 #. Number of bins for the histogram ("bins") - number of bins for creating the data histogram. The default is 128.
+#. Whether to use the gradient information during sampling (“use_gradient”) ? The default is false
 
 These parameters can be specified by assigning value via an ascent_actions.json file.
 
@@ -51,6 +52,7 @@ To demonstrate the use of histogram-based sampling filter, here is an example as
             {
               "field": "density",
               "sample_rate": "0.05",
+              "use_gradient": "true",
               "bins": "64"
             }
           }
@@ -72,14 +74,15 @@ In the use case above, we have selected parameters that are appropriate to down-
 #. "field": We choose the scalar field "density" that is generated by the scientific simulation.
 #. "sample_rate": The example sampling rate is equal to 0.05, i.e., 5% of the original data will be stored at each time step.
 #. "bins": In this example we used 64 bins to create the histogram that will be used for sampling the scalar field.
+#. “use_gradient”: In this example we are using the Value and Gradient-based sampling approach because the flag is set to true.
 
 Performance
 ^^^^^^^^^^^
-To improve overall performance of the sampling operation, this filter is capable of utilizing hardware accelerators. Further, creation of distributed histogram is additive across processors that also helps improve scalability.
+To improve overall performance of the sampling operation, this filter is implemented in vtkm/vtkh and is capable of utilizing hardware accelerators. Further, creation of distributed histogram is additive across processors that also helps improve scalability.
 
 Developers
 ^^^^^^^^^^
-Ayan Biswas, Matt Larsen, Li-Ta Lo
+Ayan Biswas, Subhashis Hazarika, Matt Larsen, Li-Ta Lo
 
 .. toctree::
    :maxdepth: 1

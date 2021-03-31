@@ -32,6 +32,7 @@ The current list of ALPINE algorithms is below.  This documentation is a work in
    :maxdepth: 2
    :caption: Current ALPINE Algorithms
 
+   stat_feature_detect
    sampling
    lagrangian
    topology

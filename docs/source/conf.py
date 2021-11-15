@@ -31,8 +31,7 @@ author = 'Terry Turton (LANL) and ALPINE team contributors'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.imgmath',
-    'sphinx_rtd_theme',
-    'sphinx.ext.pngmath',
+    'sphinx_rtd_theme'
 ]
 
 

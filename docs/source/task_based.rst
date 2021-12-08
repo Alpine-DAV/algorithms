@@ -16,13 +16,14 @@ Getting Started
 
 The task based feature segmentation is usable through Ascent when built via Spack/uberenv enabling the variant "+babelflow". The filter is called "bflow_pmt" and it accepts the following set of parameters:
 
-  * task: the name of the algorithm to execute, now only "pmt" is currently supported (default = "pmt")
+  * task: the name of the algorithm to execute, now only "bflow_pmt" is currently supported (default = "bflow_pmt")
   * field: name of the input field (scalar and float64)
   * fanin: defines the reduce/broadcast factor to use (e.g., fanin=2 will merge two merge trees at a time), it is preferrable to use 2 for 2D datasets and 8 for 3D datasets
   * threshold: the threshold for the merge tree construction, all value below this thershold will be discarded
   * gen_segment: generate (1) or not (0) a new field containing the segmentation named "segment"
 
 Some optional parameters are:
+
   * in_ghosts: number of ghost cells used by the input domain decomposition (default = [1,1,1,1,1,1])
   * ugrid_select: if dataset contains multiple uniform grids, select the index of the grid to use for the analysis (default = 0)
 
@@ -38,6 +39,11 @@ Another feature of BabelFlow is task-based, parallel compositing of images. This
  * fanin: defines the reduce factor to use when image fragments are reduced into one image in the end of the Radix-k exchange pattern; for higher process counts it is recommended to use higher fanin such as 4 or 8 to reduce the number of levels in the reduce tree
  * radices: array of radices for radix-k algorithm
 
+**Relevance computation**
+
+One extension on top of the feature segmentation filter is computing the relevance field. Relevance, which is a value in the range [0.0, 1.0], is computed from an existing merge tree and aims to rank points according to their relative distance in function space from the most dominant point in their neighborhood. Essentially, it reduces the potetially wide dynamic range of the original data into a fixed range that allows highlighting both local and global features. 
+
+The dataflow graph for the relevance computations is constructed by composing the PMT dataflow with a dataflow to compute the global merge tree and a layer to compute the relevance field. For the relevance computation the user needs to use the same "bflow_pmt" type as for the plain PMT filter, but there is an additional parameter called "rel_field" that needs to be switched on.
 
 Use Case Examples
 ^^^^^^^^^^^^^^^^^
@@ -64,6 +70,7 @@ Here is an actions file which takes as input a scalar field "mag" and perform a 
             fanin: 2
             threshold: 0.0025
             gen_segment: 1
+#            rel_field: 1   # Optional parameter to enable relevance computation
   -
     action: "add_extracts"
     extracts:

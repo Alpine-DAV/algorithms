@@ -45,6 +45,16 @@ One extension on top of the feature segmentation filter is computing the relevan
 
 The dataflow graph for the relevance computations is constructed by composing the PMT dataflow with a dataflow to compute the global merge tree and a layer to compute the relevance field. For the relevance computation the user needs to use the same "bflow_pmt" type as for the plain PMT filter, but there is an additional parameter called "rel_field" that needs to be switched on.
 
+**Streaming statistics**
+
+Streaming statistics is an approach to compute statistical metrics such as average, median, or kurtosis in a streaming fashion, that is updating the metric after each data point become available. In the context of PMT, we are interested in computing streaming statistics per feature as identified by the merge tree. In other words, look at segmented regions and compute statistics on these regions. 
+
+We use a standalone, easy-to-use library called `STREAMSTAT <https://github.com/LLNL/STREAMSTAT>`_. The library allows users to compute a number of statistic metrics on a stream of data. Supported metrics are: count, minimum, maximum, sum, mean (1st moment), variance (2nd moment), skewness (3rd moment), and kurtosis (4th moment). Each time a new value is available a statistics metric is updated and only a constant amount of information is retained for further updates.
+
+The dataflow graph is constructed by composing the PMT dataflow with a Radix-k subgraph that essentially performs streaming statistics compositing. In the first phase of the compositing, per-feature statistics are computed on the local part of the segmentation. Then the statistics are split according to the location of each of the features. In the second layer, all incoming statistics are merged using the streaming capability in STREAMSTAT and are further split. In the final layer, the statistics are merged and passed to the next subgraph. The subgraph that follows the Radik-k compositing is a k-way reduction dataflow that merges the per feature statistics and the local merge trees such that eventually we write both the global tree (i.e., features) and the statistics to the output.
+
+We use a topology oriented format called *TopologyFileReader* for the output. It is part of `TALASS <https://bitbucket.org/cedmav/talass/src/develop>`_. It stands for Topological Analysis of Large-Scale Simulations, a joint University of Utah and LLNL project. The TopologyFileReader format stores per-feature statistics along with the merge tree itself. The format is used in other projects, such as NIF target analysis, and was also used in previous work focused on combustion analysis. In order to use the TopologyFileReader from within Ascent, we introduced various changes that facilitated this integration. This format is not parallel; therefore, we needed to merge all the statistics into one structure so that a single task could write it to the output. 
+
 Use Case Examples
 ^^^^^^^^^^^^^^^^^
 
@@ -55,7 +65,20 @@ The filter can generate a new field named "segment" containing a new uniform gri
 
 **Example**
 
-Here is an actions file which takes as input a scalar field "mag" and perform a topological segmentation using a threshold (e.g., 0.0025). The segmentation is stored by the filter in a new variable named "segment", in the following example pipeline this variable saved by relay extract to a blueprint file.
+Here is an actions file which takes as input a scalar field "mag" and perform a topological segmentation using a threshold (e.g., 0.0025). The segmentation is stored by the filter in a new variable named ``segment``, in the following example pipeline this variable saved by relay extract to a blueprint file.
+
+To enable the relevance computation, the user needs to set the flag ``rel_field`` to 1. For streaming statistics, ``rel_field`` has no meaning and ``gen_segment`` should be 0 as we do not want to add the segmentation into the output Blueprint node. To enable streaming statistics, users should specify the list of statistics to be computed ``stream_stat_types``. The codes in the list are as follows:
+
+1. Count
+2. Mean
+3. Maximum
+4. Minimum
+5. Sum
+6. Variance
+7. Skewness
+8. Kurtosis
+
+Both the relevance computation and streaming statistics use the Radix-k dataflow. In both cases, the ``radices`` list can be specified with the radices to use in the dataflow. This gives users the option to adjust the Radix-k algorithm according to their needs.
 
 .. code-block:: yaml
 
@@ -70,7 +93,9 @@ Here is an actions file which takes as input a scalar field "mag" and perform a 
             fanin: 2
             threshold: 0.0025
             gen_segment: 1
-#            rel_field: 1   # Optional parameter to enable relevance computation
+            rel_field: 1   # Optional parameter to enable relevance computation
+            radices: [2, 2]  # Optional list of radices for the Radix-k dataflow
+            stream_stat_types: [1, 3, 4]  # Optional list of streaming statistic metrics (in this example: count, min, sum)
   -
     action: "add_extracts"
     extracts:

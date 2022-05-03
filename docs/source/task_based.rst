@@ -67,7 +67,18 @@ The filter can generate a new field named "segment" containing a new uniform gri
 
 Here is an actions file which takes as input a scalar field "mag" and perform a topological segmentation using a threshold (e.g., 0.0025). The segmentation is stored by the filter in a new variable named ``segment``, in the following example pipeline this variable saved by relay extract to a blueprint file.
 
-To enable the relevance computation, the user needs to set the flag ``rel_field`` to 1. For streaming statistics, ``rel_field`` has no meaning and ``gen_segment`` should be 0 as we do not want to add the segmentation into the output Blueprint node. Both the relevance computation and streaming statistics use the Radix-k dataflow. In both cases, the ``radices`` list can be specified with the radices to use in the dataflow. This gives users the option to adjust the Radix-k algorithm according to their needs.
+To enable the relevance computation, the user needs to set the flag ``rel_field`` to 1. For streaming statistics, ``rel_field`` has no meaning and ``gen_segment`` should be 0 as we do not want to add the segmentation into the output Blueprint node. To enable streaming statistics, users should specify the list of statistics to be computed ``stream_stat_types``. The codes in the list are as follows:
+
+1. Count
+2. Mean
+3. Maximum
+4. Minimum
+5. Sum
+6. Variance
+7. Skewness
+8. Kurtosis
+
+Both the relevance computation and streaming statistics use the Radix-k dataflow. In both cases, the ``radices`` list can be specified with the radices to use in the dataflow. This gives users the option to adjust the Radix-k algorithm according to their needs.
 
 .. code-block:: yaml
 

@@ -95,7 +95,7 @@ Both the relevance computation and streaming statistics use the Radix-k dataflow
             gen_segment: 1
             rel_field: 1   # Optional parameter to enable relevance computation
             radices: [2, 2]  # Optional list of radices for the Radix-k dataflow
-            stream_stat_types: [1, 3, 4]  # Optional list of streaming statistic metrics
+            stream_stat_types: [1, 3, 4]  # Optional list of streaming statistic metrics (in this example: count, min, sum)
   -
     action: "add_extracts"
     extracts:

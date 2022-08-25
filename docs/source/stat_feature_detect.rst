@@ -397,6 +397,11 @@ Developers
 
 References
 ^^^^^^^^^^^
+
+#. Soumya Dutta, Terece L. Turton, David Rogers, Jordan M. Musser, James Ahrens, and Ann S. Almgren, In Situ Feature Analysis for Large-scale Multiphase Flow Simulations, Journal of Computational Science (Elsivier), 2022.
+
+#. Soumya Dutta, Dan Lipsa, Terece L. Turton, Berk Geveci, and James Ahrens, In Situ Analysis and Visualization of Extreme-Scale Particle Simulations, WOIV: 6th International Workshop on In Situ Visualization, 2022 (co-located with ISC High Performance Conference).
+
 #. Soumya Dutta, Jonathan Woodring, Han-Wei Shen, Jen-Ping Chen, and James Ahrens, "Homogeneity Guided Probabilistic Data Summaries for Analysis and Visualization of Large-Scale Data Sets", 2017 IEEE Pacific Visualization Symposium (PacificVis), Seoul, Korea (South), 2017, pp. 111-120.
 
 #. Radhakrishna Achanta, Appu Shaji, Kevin Smith, Aurelien Lucchi, Pascal Fua, and Sabine Süsstrunk, "SLIC Superpixels Compared to State-of-the-art Superpixel Methods", in IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 34, no. 11, pp. 2274-2282, Nov. 2012, doi: 10.1109/TPAMI.2012.120.
